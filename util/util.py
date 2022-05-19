@@ -5,6 +5,10 @@ import numpy as np
 from PIL import Image
 import os
 
+def resize(img):
+    if img.size[1] > 900:
+        img = img.resize((960, int(img.size[1] * 960 / img.size[0])), Image.ANTIALIAS)
+    return img
 
 def tensor2im(input_image, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
@@ -94,3 +98,14 @@ def mkdir(path):
     """
     if not os.path.exists(path):
         os.makedirs(path)
+
+def MkdirSimple(path):
+    path_current = path
+    suffix = os.path.splitext(os.path.split(path)[1])[1]
+
+    if suffix != "":
+        path_current = os.path.dirname(path)
+        if path_current in ["", "./", ".\\"]:
+            return
+    if not os.path.exists(path_current):
+        os.makedirs(path_current)

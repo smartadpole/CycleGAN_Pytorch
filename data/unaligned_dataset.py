@@ -25,9 +25,16 @@ class UnalignedDataset(BaseDataset):
         BaseDataset.__init__(self, opt)
         self.dir_A = os.path.join(opt.dataroot, opt.phase + 'A')  # create a path '/path/to/data/trainA'
         self.dir_B = os.path.join(opt.dataroot, opt.phase + 'B')  # create a path '/path/to/data/trainB'
+        file_A = self.dir_A + ".txt"
+        file_B = self.dir_B + ".txt"
 
-        self.A_paths = sorted(make_dataset(self.dir_A, opt.max_dataset_size))   # load images from '/path/to/data/trainA'
-        self.B_paths = sorted(make_dataset(self.dir_B, opt.max_dataset_size))    # load images from '/path/to/data/trainB'
+        if (not os.path.exists(file_A)) and (not os.path.exists(file_B)):
+            self.A_paths = sorted(make_dataset(self.dir_A, opt.max_dataset_size))   # load images from '/path/to/data/trainA'
+            self.B_paths = sorted(make_dataset(self.dir_B, opt.max_dataset_size))    # load images from '/path/to/data/trainB'
+        else:
+            self.A_paths = [f.strip() for f in open(file_A).readlines()]
+            self.B_paths = [f.strip() for f in open(file_B).readlines()]
+
         self.A_size = len(self.A_paths)  # get the size of dataset A
         self.B_size = len(self.B_paths)  # get the size of dataset B
         btoA = self.opt.direction == 'BtoA'
@@ -49,10 +56,11 @@ class UnalignedDataset(BaseDataset):
             B_paths (str)    -- image paths
         """
         A_path = self.A_paths[index % self.A_size]  # make sure index is within then range
-        if self.opt.serial_batches:   # make sure index is within then range
-            index_B = index % self.B_size
-        else:   # randomize the index for domain B to avoid fixed pairs.
-            index_B = random.randint(0, self.B_size - 1)
+        # if self.opt.serial_batches:   # make sure index is within then range
+        #     index_B = index % self.B_size
+        # else:   # randomize the index for domain B to avoid fixed pairs.
+        #     index_B = random.randint(0, self.B_size - 1)
+        index_B= index
         B_path = self.B_paths[index_B]
         A_img = Image.open(A_path).convert('RGB')
         B_img = Image.open(B_path).convert('RGB')

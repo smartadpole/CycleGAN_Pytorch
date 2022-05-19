@@ -2,8 +2,45 @@
 
 <br><br><br>
 
-# CycleGAN and pix2pix in PyTorch
 克隆自 <https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix> ；   
+
+# 水下摄影去偏色
+1. 下载模型文件 ，放置工程下 `checkpoints/underwater_water_competition/` 文件夹中     
+百度网盘: https://pan.baidu.com/s/1miHTZC7YdDEr2ujEIs-Dnw  密码: hsqt    
+2. 执行命令      
+```shell
+python3 test_B.py --dataroot $root/test-A-image --name underwater_water_competition --model cycle_gan --preprocess none
+```
+3. 生成文件在 `$root/test-A-image_deblure` 下   
+
+*因显存限制，处理图像时对于 1080×1920 以上的图像，进行了等比缩放；具体代码可在 `data/single_dataset.py` 中 35 行修改；*    
+
+# 相机风格迁移
+训练
+```
+# camera 为数据集路径，路径下可选两种格式，
+#     第一 trainA.txt 和 trainB.txt 中列出图片的绝对路径，训练时选取对应行作为图像对；
+#     第二 trainA 和 trainB 两个文件夹中列出所需图片，训练时随机选取图像对；
+
+
+# 训练
+python train.py --dataroot $camera --name camera_cyclegan --model cycle_gan --batch_size 1 --no_flip
+# 继续训练
+python train.py --dataroot $camera --name camera_cyclegan --model cycle_gan --batch_size 1 --continue_train --epoch_count 4 --no_flip
+
+```
+
+生成迁移结果
+```
+# camera 为数据集路径，路径下可选两种格式，
+#     第一 test.txt 为要处理的图像绝对路径列表；
+#     第二 trainA 文件夹中列出所需处理的图片；
+
+# 迁移结果会存放在同级目录下 $A_dir_result 文件夹
+python test_B.py --dataroot $A_dir --name camera_cyclegan --model cycle_gan --dataset_mode single --preprocess none
+```
+
+# CycleGAN and pix2pix in PyTorch
 
 We provide PyTorch implementations for both unpaired and paired image-to-image translation.
 
